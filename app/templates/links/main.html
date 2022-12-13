@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load colorize %}
+{% block title %}
+    Price Tracker
+{% endblock title%}
+
+
+{% block content %}
+    <!-- Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post" autocomplete="off">
+            {% csrf_token %}
+            {{ form_add|crispy }}
+            <button type="submit" name="form_add" class="btn btn-primary mt-3">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+    <div class="col">
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">Add</button>
+        <a href="{% url 'update' %}"><button class="btn btn-info">
+            Update
+        </button></a>
+    </div>
+    <div class="col" style="text-align: right">
+        <div>Total number of items being tracked: {{ items_no }}</div>
+        <div>Discounted items: {{ no_discounted }}</div>
+    </div>
+</div>
+    {% if qs %}
+        {% for item in qs %}
+            <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Do you want to delete "{{ item.name }}"?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" style="text-align: center">
+                      <a href="{% url 'delete-view' item.pk %}"><button class="btn btn-danger mt-3" style="width: 100%">Delete</button></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mt-3">
+                <h5 class="card-header">{{ item.name }}</h5>
+                <div class="card-body">
+                    <p class="card-text">Current price is ${{ item.current_price }}</p>
+                    <p class="card-text">Old price is ${{ item.old_price }}</p>
+                    <p class="card-text">Price difference is ${{ item.price_difference|colorize }}</p>
+                    <a href="{{ item.url}}" class="btn btn-primary">Link</a>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteItemModal">Delete</button>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+        <h3>No items being tracked...</h3>
+    {% endif %}
+{% endblock content %}
